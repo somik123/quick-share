@@ -1,0 +1,40 @@
+<!doctype html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en" data-bs-theme="dark">
+
+<body>
+    <div th:if="${success}" class="alert alert-info" role="alert">
+        <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-warning" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+    <div id="all_cards" th:if="${max >= 0}">
+        <div class="card mt-2" th:each="i : ${#numbers.sequence(0, max)}">
+            <div class="card-body px-3 py-2">
+                <h5 class="card-title" th:id="'card_'+${i+1}" th:text="${messageList.get(i).message}">
+                    Link: https://kfels.com/file/DJmxY2hx3QY7UZem/Poly_Bridge_3_v1.1.2.apk
+                    Delete: https://kfels.com/deleteFile/DJmxY2hx3QY7UZem/nmY5itQLVhbWzQXcQewFQ3tZ4nky4zdV</h5>
+                <div class="row">
+                    <div class="col-lg-3 col-md-12 mb-1">
+                        Alias:
+                        <span th:text="${messageList.get(i).creatorName}">test_user</span>
+                    </div>
+                    <div class="col-lg-3 col-md-12 mb-1">
+                        Posted:
+                        <span th:text="${#strings.replace(messageList.get(i).created, 'T',' ')}">Time</span>
+                    </div>
+                    <div class="col-lg-3 col-md-12 mb-1">
+                        Expiry:
+                        <span th:text="${#strings.replace(messageList.get(i).expiry, 'T',' ')}">N/A</span>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 end-0 p-2">
+                    <a href="#" th:data-deleteCode="${messageList.get(i).deleteCode}"
+                        onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+volumes:
+  quick_share_data:
+    name: quick_share_data
+
+services:
+  app:
+    image: somik123/quick-share
+    container_name: quick_share_java
+    restart: unless-stopped
+    volumes:
+      - quick_share_data:/usr/app/data
+    environment:
+      QUICKSHARE_DB_NAME: VbuDe5UTv8XDFFZk
+      QUICKSHARE_DB_USER: E3HyCy8WzzjFpPua
+      QUICKSHARE_DB_PASS: ej6L9nV5vBBLP7iQUi4Zhd32iaEH4yYa
+      TZ: Asia/Singapore
+    ports:
+      - 6980:8080

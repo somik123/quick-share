@@ -1,0 +1,14 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### VS Code ###
+.vscode/
+
+### Data dirs ###
+data/db/**
+!data/db/db_goes_here.txt
+data/logs/**
+!data/logs/logs_goes_here.txt
