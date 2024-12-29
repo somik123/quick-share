@@ -11,9 +11,8 @@
     <div id="all_cards" th:if="${max >= 0}">
         <div class="card mt-2" th:each="i : ${#numbers.sequence(0, max)}">
             <div class="card-body px-3 py-2">
-                <h5 class="card-title" th:id="'card_'+${i+1}" th:text="${messageList.get(i).message}">
-                    Link: https://kfels.com/file/DJmxY2hx3QY7UZem/Poly_Bridge_3_v1.1.2.apk
-                    Delete: https://kfels.com/deleteFile/DJmxY2hx3QY7UZem/nmY5itQLVhbWzQXcQewFQ3tZ4nky4zdV</h5>
+                <div class="card-title fs-5 overflow-y-auto" style="max-height: 10rem;" th:id="'card_'+${i+1}"
+                    th:text="${messageList.get(i).message}"></div>
                 <div class="row">
                     <div class="col-lg-3 col-md-12 mb-1">
                         Alias:
@@ -29,6 +28,10 @@
                     </div>
                 </div>
                 <div class="position-absolute bottom-0 end-0 p-2">
+                    <input type="hidden" th:id="'raw_card_'+${i+1}" th:value="${messageList.get(i).message}">
+                    <a href="#" th:data-cardId="${i+1}"
+                        th:if="${#strings.substring(messageList.get(i).message, 0, 8)=='Encoded:'}"
+                        onclick="return decryptMessage(this.getAttribute('data-cardId'));">Decrypt</a> 
                     <a href="#" th:data-deleteCode="${messageList.get(i).deleteCode}"
                         onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">Delete</a>
                 </div>

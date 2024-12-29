@@ -20,7 +20,7 @@ public class Message {
     private int id;
 
     @Nonnull
-    @Column(length = 2000)
+    @Column(length = 5500)
     private String message;
 
     private String creatorName;

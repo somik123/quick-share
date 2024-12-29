@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -23,7 +24,8 @@ public class HomeController {
     MessageBoxService messageBoxService;
 
     @GetMapping("/")
-    public String homePage() {
+    public String homePage(Model model) {
+        model.addAttribute("fileshare_site_url", System.getenv("FILESHARE_SITE_FULL_URL"));
         return "home";
     }
 
@@ -82,5 +84,11 @@ public class HomeController {
             model.addAttribute("error", response.getError());
         }
         return model;
+    }
+
+    @GetMapping("/{messageBoxName}")
+    public String homePageAlt(Model model, @PathVariable String messageBoxName) {
+        model.addAttribute("messageBoxName", messageBoxName);
+        return homePage(model);
     }
 }

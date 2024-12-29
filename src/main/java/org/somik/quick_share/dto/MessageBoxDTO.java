@@ -36,10 +36,13 @@ public class MessageBoxDTO {
 
     public void convertMessageListToDto(List<Message> messageList) {
         List<MessageDTO> messageDtoList = new ArrayList<>();
-        for (Message message : messageList) {
-            MessageDTO messageDTO = new MessageDTO(message.getMessage(), message.getCreatorName(), message.getCreated(),
-                    message.getExpiry(), message.getDeleteCode());
-            messageDtoList.add(messageDTO);
+        if (messageList != null && messageList.size() > 0) {
+            for (Message message : messageList) {
+                MessageDTO messageDTO = new MessageDTO(message.getMessage(), message.getCreatorName(),
+                        message.getCreated(),
+                        message.getExpiry(), message.getDeleteCode());
+                messageDtoList.add(messageDTO);
+            }
         }
         this.messageList = messageDtoList;
 

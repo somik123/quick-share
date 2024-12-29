@@ -1,4 +1,5 @@
 var interval = null;
+var encryptedPasswords = new Map();
 
 function createMessageBox() {
     var msgBox = document.getElementById("msgBoxNameTxt");
@@ -89,7 +90,6 @@ function postMessage() {
     http.onload = function () {
         divBox.innerHTML = http.responseText;
         divBox.classList.remove('closed');
-        process_links();
         messageTxtArea.value = "";
         pageLoadActions();
     }
@@ -123,6 +123,13 @@ function deleteMessage(messageDeleteCode) {
 }
 
 
+function lengthCounter() {
+    var el = document.getElementById("count_message");
+    var txtArea = document.getElementById("messageTxtArea");
+    el.innerHTML = txtArea.value.length + " / " + txtArea.maxLength;
+}
+
+
 function linkify(inputText) {
     var replacedText, replacePattern1, replacePattern2, replacePattern3;
 
@@ -147,15 +154,16 @@ function linkify(inputText) {
     return replacedText;
 }
 
-function process_links() {
+function processCardContents() {
     var el;
-    for (var i = 1; i <= 100; i++) {
-        el = document.getElementById("card_" + i);
+    for (var id = 1; id <= 100; id++) {
+        el = document.getElementById("card_" + id);
         if (el == null) {
             return;
         }
         else {
             el.innerHTML = linkify(el.innerHTML);
+            decryptMessageProcess(id);
         }
     }
 }
@@ -209,6 +217,7 @@ function replaceSelectedText(el, tag0, tag1) {
     var sel = getInputSelection(el)
     var fullTxt = el.value;
     el.value = fullTxt.slice(0, sel.start) + tag0 + fullTxt.substring(sel.start, sel.end) + tag1 + fullTxt.slice(sel.end);
+    lengthCounter();
 }
 
 function boldText() {
@@ -221,12 +230,59 @@ function italicText() {
     replaceSelectedText(el, "[i]", "[/i]");
 }
 
+function encryptText() {
+    var el = document.getElementById("messageTxtArea");
+    var plainTxt = el.value;
+    var hashedPwd = sha256(prompt("Enter encryption password:"));
+    var encryptedTxt = encrypt(plainTxt, hashedPwd, true);
+    var json = JSON.stringify(encryptedTxt);
+    el.value = "Encoded: \n" + btoa(json);
+    lengthCounter();
+}
+
+function decryptMessage(id) {
+    var card_id = "card_" + id;
+    var hashedPwd = sha256(prompt("Enter encryption password:"));
+    encryptedPasswords.set(card_id, hashedPwd);
+    decryptMessageProcess(id);
+    return false;
+}
+
+function decryptMessageProcess(id) {
+    var card_id = "card_" + id;
+    var el_source = document.getElementById("raw_" + card_id);
+    var el_dest = document.getElementById(card_id);
+
+    if (encryptedPasswords.has(card_id)) {
+        var hashedPwd = encryptedPasswords.get(card_id);
+
+        if (hashedPwd.length <= 5)
+            return false;
+        var parts = el_source.value.split("\n");
+        var json = JSON.parse(atob(parts[1]));
+
+        try {
+            var decoded = "Decoded message:\n" + decrypt(json["data"], hashedPwd, json["iv"]);
+            el_dest.innerHTML = linkify(decoded);
+        } catch (error) {
+            console.error(error);
+            encryptedPasswords.delete(card_id);
+        }
+    }
+}
+
+
 function attachFile() {
     document.getElementById("file").click();
 }
 
 function uploadFile() {
-    var fileShare = "https://kfels.com";
+    var fileShare = document.getElementById("fileshare_site_url").value;
+    if (fileShare.length < 10 || fileShare.substring(0, 4) != "http") {
+        alert("FILESHARE_SITE_FULL_URL not set.")
+        return false;
+    }
+    fileShare = fileShare.substring(0, fileShare.length - 1);
 
     var file = document.getElementById("file");
 
@@ -262,26 +318,27 @@ function uploadFile() {
                 document.getElementById("result-error").style.display = "none";
                 el.value += "Link: " + fileShare + api_reply['content']['url'] + "\n";
                 el.value += "Delete: " + fileShare + api_reply['content']['deleteUrl'];
+                lengthCounter();
             }
             else if (api_reply['status'] == "FAIL") {
                 document.getElementById("result-error").innerHTML = '<div class="alert alert-danger" role="alert"><strong>ERROR:</strong> ' + api_reply['error'] + '</div>';
                 document.getElementById("result-error").style.display = "";
                 document.getElementById('slider').classList.remove('closed');
             }
-            else {
+            else
                 alert("File upload failed as server returned error.");
-            }
         }
-        else {
+        else
             alert("File upload failed as failed contacting the server.");
-        }
     }
     return false;
 }
 
 function pageLoadActions() {
     // Linkify all raw text
-    process_links();
+    processCardContents();
+    // Length counter for text area
+    lengthCounter();
 
     // Reload every 5 seconds
     var cardDiv = document.getElementById("all_cards");
@@ -296,5 +353,17 @@ function pageLoadActions() {
     else {
         clearInterval(interval);
         interval = null;
+    }
+}
+
+function firstLoadOpenMessageBox() {
+    var msgBox = document.getElementById("msgBoxNameTxt");
+    const urlParams = new URLSearchParams(window.location.search);
+    const messageBoxName = urlParams.get("inbox");
+    if (messageBoxName != null && messageBoxName != undefined && messageBoxName.length > 3) {
+        msgBox.value = messageBoxName;
+        openMessageBox();
+    } else if (msgBox.value.length > 3) {
+        openMessageBox();
     }
 }

@@ -66,15 +66,18 @@ public class MessageBoxServiceImpl implements MessageBoxService {
         MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass);
         if (messageBox == null) {
             LOG.info(String.format("Message box not found or %s password did not match", msgBoxName));
-            return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox),
+            return new ResponseDTO("FAIL", null,
                     "Message box does not exist or incorrect password.");
         } else {
             if (username == null || username.length() < 3) {
                 LOG.warning(String.format("Username [%s] not acceptable.", username));
                 return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Username too small");
-            } else if (message == null || message.length() < 3) {
+            } else if (message == null || message.length() < 5 || message.length() > 5000) {
                 LOG.warning(String.format("Message [%s] not acceptable.", message));
                 return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Message too small");
+            } else if (expiry <= 0 || expiry > 87600) {
+                LOG.warning(String.format("Expiry of %d hours not acceptable.", expiry));
+                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Invalid expiry date.");
             }
             LocalDateTime expiryTime = LocalDateTime.now().plus(expiry, ChronoUnit.HOURS)
                     .truncatedTo(ChronoUnit.SECONDS);
@@ -125,6 +128,8 @@ public class MessageBoxServiceImpl implements MessageBoxService {
     }
 
     private MessageBoxDTO convertMessageBoxToDto(MessageBox messageBox) {
+        if (messageBox == null)
+            return null;
         MessageBoxDTO messageBoxDTO = new MessageBoxDTO();
         messageBoxDTO.setName(messageBox.getName());
         messageBoxDTO.convertMessageListToDto(messageBox.getMessageList());

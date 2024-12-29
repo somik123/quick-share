@@ -11,22 +11,9 @@
 	</parent>
 	<groupId>org.somik</groupId>
 	<artifactId>quick-share</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.6</version>
 	<name>quick-share</name>
 	<description>A online chat like interface for quickly sharing text/links/files with other devices</description>
-	<url />
-	<licenses>
-		<license />
-	</licenses>
-	<developers>
-		<developer />
-	</developers>
-	<scm>
-		<connection />
-		<developerConnection />
-		<tag />
-		<url />
-	</scm>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
