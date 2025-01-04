@@ -31,9 +31,11 @@
                     <input type="hidden" th:id="'raw_card_'+${i+1}" th:value="${messageList.get(i).message}">
                     <a href="#" th:data-cardId="${i+1}"
                         th:if="${#strings.substring(messageList.get(i).message, 0, 8)=='Encoded:'}"
-                        onclick="return decryptMessage(this.getAttribute('data-cardId'));">Decrypt</a> 
+                        onclick="return decryptMessage(this.getAttribute('data-cardId'));">Decrypt</a>
                     <a href="#" th:data-deleteCode="${messageList.get(i).deleteCode}"
                         onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">Delete</a>
+                    <a href="#" th:data-cardId="${i+1}"
+                        onclick="return expandMessage(this.getAttribute('data-cardId'));">Expand</a>
                 </div>
             </div>
         </div>

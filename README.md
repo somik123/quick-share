@@ -17,7 +17,8 @@ Edit the file with your favorit editor to set all the environment variables in t
 | `QUICKSHARE_DB_NAME` | Database name. Database will be saved to ./db folder. Tables will be autocreated on boot (if not exist) |
 | `QUICKSHARE_DB_USER` | Database usernme |
 | `QUICKSHARE_DB_PASS` | Database password |
-| `FILESHARE_SITE_FULL_URL` | Homepage for link-shortener-file-share |
+| `FILESHARE_SITE_FULL_URL` | Homepage for https://github.com/somik123/link-shortener-file-share |
+| `IMAGESHARE_SITE_FULL_URL` | Homepage url for https://github.com/somik123/mini-image-host |
 
 Once done, save the file and run the following command from the same folder as your `docker-compose.yml` file.
 ```
@@ -87,6 +88,7 @@ It is available on port `6988` once it is up.
 - [x] Ability to upload files 
 - [x] Able to delete messages.
 - [x] Add file upload & share feature using https://github.com/somik123/link-shortener-file-share
+- [x] Add image upload & share feature using https://github.com/somik123/mini-image-host
 - [x] Expire/delete the messages after predefined time.
 - [x] Add option to encrypt each message with a password.
 - [x] Add input validations for message box name & message expiry.
@@ -97,7 +99,7 @@ It is available on port `6988` once it is up.
 - [x] Set message boxes max height.
 - [x] Add a footer.
 - [x] Add option to share message box without typing in the message box name.
-- [ ] Add ability to open message in larger view.
+- [x] Add ability to open message in larger view.
 - [ ] Add code syntax highlighting.
 - [ ] Add admin login to manage message boxes & messages.
 - [ ] Add flag to enable only admin to create message boxes.

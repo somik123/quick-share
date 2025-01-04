@@ -26,6 +26,7 @@ public class HomeController {
     @GetMapping("/")
     public String homePage(Model model) {
         model.addAttribute("fileshare_site_url", System.getenv("FILESHARE_SITE_FULL_URL"));
+        model.addAttribute("imageshare_site_url", System.getenv("IMAGESHARE_SITE_FULL_URL"));
         return "home";
     }
 
@@ -68,6 +69,12 @@ public class HomeController {
         return "messages";
     }
 
+    @GetMapping("/{messageBoxName}")
+    public String homePageAlt(Model model, @PathVariable String messageBoxName) {
+        model.addAttribute("messageBoxName", messageBoxName);
+        return homePage(model);
+    }
+
     private Model addMessageToModel(Model model, ResponseDTO response) {
         MessageBoxDTO messageBoxDTO = (MessageBoxDTO) response.getContent();
         if (messageBoxDTO != null) {
@@ -86,9 +93,10 @@ public class HomeController {
         return model;
     }
 
-    @GetMapping("/{messageBoxName}")
-    public String homePageAlt(Model model, @PathVariable String messageBoxName) {
-        model.addAttribute("messageBoxName", messageBoxName);
-        return homePage(model);
+    private boolean isEmptyOrNull(String data) {
+        if (data != null && data.length() > 0)
+            return false;
+        else
+            return true;
     }
 }

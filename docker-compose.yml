@@ -13,7 +13,8 @@ services:
       QUICKSHARE_DB_NAME: VbuDe5UTv8XDFFZk
       QUICKSHARE_DB_USER: E3HyCy8WzzjFpPua
       QUICKSHARE_DB_PASS: ej6L9nV5vBBLP7iQUi4Zhd32iaEH4yYa
-      FILESHARE_SITE_FULL_URL: http://example.com/
+      FILESHARE_SITE_FULL_URL: http://file-host.example.com/
+      IMAGESHARE_SITE_FULL_URL: http://image-host.example.com/
       TZ: Asia/Singapore
     ports:
       - 6980:8080

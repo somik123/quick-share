@@ -52,6 +52,7 @@ function openMessageBox() {
     return false;
 }
 
+
 function postMessage() {
     var msgBox = document.getElementById("msgBoxNameTxt");
     var msgBoxName = msgBox.value.toLowerCase();
@@ -97,6 +98,17 @@ function postMessage() {
 }
 
 
+function expandMessage(id) {
+    var card_id = "card_" + id;
+    var el = document.getElementById(card_id);
+    if (el.style.maxHeight.length > 0)
+        el.style.maxHeight = "";
+    else
+        el.style.maxHeight = "10rem";
+
+}
+
+
 function deleteMessage(messageDeleteCode) {
     var msgBox = document.getElementById("msgBoxNameTxt");
     var msgBoxName = msgBox.value.toLowerCase();
@@ -134,7 +146,7 @@ function linkify(inputText) {
     var replacedText, replacePattern1, replacePattern2, replacePattern3;
 
     //URLs starting with http://, https://, or ftp://
-    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    replacePattern1 = /(\b(^|[^\]])(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
     replacedText = inputText.replaceAll(replacePattern1, '<a href="$1" target="_blank">$1</a>');
 
     //URLs starting with "www." (without // before it, or it'd re-link the ones done above).
@@ -145,14 +157,15 @@ function linkify(inputText) {
     replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
     replacedText = replacedText.replaceAll(replacePattern3, '<a href="mailto:$1">$1</a>');
 
-    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]"];
-    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>"];
+    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]"];
+    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />"];
     for (var i = 0; i < src_arr.length; i++) {
         replacedText = replacedText.replaceAll(src_arr[i], rep_arr[i]);
     }
 
     return replacedText;
 }
+
 
 function processCardContents() {
     var el;
@@ -167,6 +180,7 @@ function processCardContents() {
         }
     }
 }
+
 
 function getInputSelection(el) {
     var start = 0, end = 0, normalizedValue, range, textInputRange, len, endRange;
@@ -213,6 +227,7 @@ function getInputSelection(el) {
     };
 }
 
+
 function replaceSelectedText(el, tag0, tag1) {
     var sel = getInputSelection(el)
     var fullTxt = el.value;
@@ -220,15 +235,18 @@ function replaceSelectedText(el, tag0, tag1) {
     lengthCounter();
 }
 
+
 function boldText() {
     var el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[b]", "[/b]");
 }
 
+
 function italicText() {
     var el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[i]", "[/i]");
 }
+
 
 function encryptText() {
     var el = document.getElementById("messageTxtArea");
@@ -240,6 +258,7 @@ function encryptText() {
     lengthCounter();
 }
 
+
 function decryptMessage(id) {
     var card_id = "card_" + id;
     var hashedPwd = sha256(prompt("Enter encryption password:"));
@@ -247,6 +266,7 @@ function decryptMessage(id) {
     decryptMessageProcess(id);
     return false;
 }
+
 
 function decryptMessageProcess(id) {
     var card_id = "card_" + id;
@@ -272,9 +292,60 @@ function decryptMessageProcess(id) {
 }
 
 
-function attachFile() {
-    document.getElementById("file").click();
+function attachImage() {
+    document.getElementById("attach_image").click();
 }
+
+
+function uploadImage() {
+    var fileShare = document.getElementById("imageshare_site_url").value;
+    if (fileShare.length < 10 || fileShare.substring(0, 4) != "http") {
+        alert("IMAGESHARE_SITE_FULL_URL not set.")
+        return false;
+    }
+    fileShare = fileShare.substring(0, fileShare.length - 1);
+
+    var file = document.getElementById("attach_image");
+
+    if (!file.files[0])
+        return;
+
+    let form = document.getElementById("image_upload_form");
+    let data = new FormData(form);
+
+    var el = document.getElementById("messageTxtArea");
+    let http = new XMLHttpRequest();
+    http.open("POST", fileShare + "/index.php");
+
+    http.send(data);
+    http.onload = function () {
+        if (http.responseText.length > 0) {
+            var api_reply = JSON.parse(http.responseText);
+            console.log(api_reply);
+            if (api_reply['status'] == "OK") {
+                document.getElementById("result-error").style.display = "none";
+                el.value += "[img]" + api_reply['url'] + "[/img]\n";
+                lengthCounter();
+            }
+            else if (api_reply['status'] == "FAIL") {
+                document.getElementById("result-error").innerHTML = '<div class="alert alert-danger" role="alert"><strong>ERROR:</strong> ' + api_reply['msg'] + '</div>';
+                document.getElementById("result-error").style.display = "";
+                document.getElementById('slider').classList.remove('closed');
+            }
+            else
+                alert("Image upload failed as server returned error.");
+        }
+        else
+            alert("Image upload failed as failed contacting the server.");
+    }
+    return false;
+}
+
+
+function attachFile() {
+    document.getElementById("attach_file").click();
+}
+
 
 function uploadFile() {
     var fileShare = document.getElementById("fileshare_site_url").value;
@@ -284,12 +355,12 @@ function uploadFile() {
     }
     fileShare = fileShare.substring(0, fileShare.length - 1);
 
-    var file = document.getElementById("file");
+    var file = document.getElementById("attach_file");
 
     if (!file.files[0])
         return;
 
-    let form = document.querySelector("form");
+    let form = document.getElementById("file_upload_form");
     let data = new FormData(form);
 
     let percent = document.getElementById("upload_btn");
@@ -334,6 +405,7 @@ function uploadFile() {
     return false;
 }
 
+
 function pageLoadActions() {
     // Linkify all raw text
     processCardContents();
@@ -355,6 +427,7 @@ function pageLoadActions() {
         interval = null;
     }
 }
+
 
 function firstLoadOpenMessageBox() {
     var msgBox = document.getElementById("msgBoxNameTxt");
