@@ -11,4 +11,6 @@ public interface MessageBoxService {
             String creatorIp);
 
     ResponseDTO deleteMessageFromBox(String msgBoxName, String msgBoxPass, String messageDeleteCode);
+
+    void deleteExpiredMessages();
 }

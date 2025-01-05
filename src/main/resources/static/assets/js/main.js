@@ -53,6 +53,19 @@ function openMessageBox() {
 }
 
 
+function firstLoadOpenMessageBox() {
+    var msgBox = document.getElementById("msgBoxNameTxt");
+    const urlParams = new URLSearchParams(window.location.search);
+    const messageBoxName = urlParams.get("inbox");
+    if (messageBoxName != null && messageBoxName != undefined && messageBoxName.length > 3) {
+        msgBox.value = messageBoxName;
+        openMessageBox();
+    } else if (msgBox.value.length > 3) {
+        openMessageBox();
+    }
+}
+
+
 function postMessage() {
     var msgBox = document.getElementById("msgBoxNameTxt");
     var msgBoxName = msgBox.value.toLowerCase();
@@ -153,8 +166,8 @@ function linkify(inputText) {
     replacePattern2 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
     replacedText = replacedText.replaceAll(replacePattern2, '<a href="mailto:$1">$1</a>');
 
-    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]"];
-    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />"];
+    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]","[code]","[/code]"];
+    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />", "<pre><code>","</code></pre>"];
     for (var i = 0; i < src_arr.length; i++) {
         replacedText = replacedText.replaceAll(src_arr[i], rep_arr[i]);
     }
@@ -241,6 +254,11 @@ function boldText() {
 function italicText() {
     var el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[i]", "[/i]");
+}
+
+function codeText() {
+    var el = document.getElementById("messageTxtArea");
+    replaceSelectedText(el, "[code]", "\n[/code]");
 }
 
 
@@ -406,7 +424,7 @@ function pageLoadActions() {
     // Linkify all raw text
     processCardContents();
     // Length counter for text area
-    lengthCounter();
+    lengthCounter(); 
 
     // Reload every 5 seconds
     var cardDiv = document.getElementById("all_cards");
@@ -424,15 +442,3 @@ function pageLoadActions() {
     }
 }
 
-
-function firstLoadOpenMessageBox() {
-    var msgBox = document.getElementById("msgBoxNameTxt");
-    const urlParams = new URLSearchParams(window.location.search);
-    const messageBoxName = urlParams.get("inbox");
-    if (messageBoxName != null && messageBoxName != undefined && messageBoxName.length > 3) {
-        msgBox.value = messageBoxName;
-        openMessageBox();
-    } else if (msgBox.value.length > 3) {
-        openMessageBox();
-    }
-}

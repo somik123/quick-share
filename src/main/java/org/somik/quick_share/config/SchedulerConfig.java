@@ -1,19 +1,20 @@
 package org.somik.quick_share.config;
 
-import org.somik.quick_share.service.MessageService;
+import org.somik.quick_share.service.MessageBoxService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-@Configurable
+@Configuration
 @EnableScheduling
 public class SchedulerConfig {
     @Autowired
-    MessageService messageService;
+    MessageBoxService messageBoxService;
 
-    @Scheduled(cron = "@hourly")
-    public void hourlyCronJobs() {
-        messageService.deleteExpiredMessages();
+    // Runs every 5 mins
+    @Scheduled(fixedDelay = 5 * 60 * 1000)
+    public void deleteExpiredMessagesCronJob() {
+        messageBoxService.deleteExpiredMessages();
     }
 }

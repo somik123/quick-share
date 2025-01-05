@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+
 @Controller
 public class HomeController {
     @Autowired
@@ -75,6 +76,12 @@ public class HomeController {
         return homePage(model);
     }
 
+    @GetMapping("/cron")
+    public String runCronJobs(Model model) {
+        messageBoxService.deleteExpiredMessages();
+        return homePage(model);
+    }
+
     private Model addMessageToModel(Model model, ResponseDTO response) {
         MessageBoxDTO messageBoxDTO = (MessageBoxDTO) response.getContent();
         if (messageBoxDTO != null) {
@@ -91,12 +98,5 @@ public class HomeController {
             model.addAttribute("error", response.getError());
         }
         return model;
-    }
-
-    private boolean isEmptyOrNull(String data) {
-        if (data != null && data.length() > 0)
-            return false;
-        else
-            return true;
     }
 }

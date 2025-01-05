@@ -2,6 +2,7 @@ package org.somik.quick_share.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -13,6 +14,7 @@ import org.somik.quick_share.repo.MessageBoxRepo;
 import org.somik.quick_share.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 public class MessageBoxServiceImpl implements MessageBoxService {
@@ -75,11 +77,11 @@ public class MessageBoxServiceImpl implements MessageBoxService {
             } else if (message == null || message.length() < 5 || message.length() > 5000) {
                 LOG.warning(String.format("Message [%s] not acceptable.", message));
                 return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Message too small");
-            } else if (expiry <= 0 || expiry > 87600) {
-                LOG.warning(String.format("Expiry of %d hours not acceptable.", expiry));
-                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Invalid expiry date.");
+            } else if (expiry <= 0 || expiry > 5259600) {
+                LOG.warning(String.format("Expiry of %d mins not acceptable.", expiry));
+                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Invalid expiry time.");
             }
-            LocalDateTime expiryTime = LocalDateTime.now().plus(expiry, ChronoUnit.HOURS)
+            LocalDateTime expiryTime = LocalDateTime.now().plus(expiry, ChronoUnit.MINUTES)
                     .truncatedTo(ChronoUnit.SECONDS);
             Message newMessage = new Message(message, username, creatorIp, expiryTime);
             LOG.info(String.format("Adding message:\n%s\nTo box: \n%s", newMessage.toString(), msgBoxName));
@@ -106,6 +108,33 @@ public class MessageBoxServiceImpl implements MessageBoxService {
             }
         }
         return new ResponseDTO("FAIL", null, "Message does not exist or incorrect delete code.");
+    }
+
+    @Override
+    public void deleteExpiredMessages() {
+        LocalDateTime now = LocalDateTime.now();
+        List<MessageBox> mesageBoxList = messageBoxRepo.findAllMessageBoxes();
+        for (MessageBox messageBox : mesageBoxList) {
+
+            List<Message> messageList = messageBox.getMessageList();
+
+            if (messageList == null || mesageBoxList.size() == 0) {
+                LOG.info("Skipping");
+                continue;
+            }
+
+            int count = 0;
+            Iterator<Message> messageIterator = messageList.iterator();
+            while(messageIterator.hasNext()){
+                Message message = messageIterator.next();
+                if (now.isAfter(message.getExpiry())) {
+                    messageIterator.remove();
+                    count++;
+                }
+            }
+            messageBoxRepo.save(messageBox);
+            LOG.info(String.format("From message box %s deleted %d expired messages.", messageBox.getName(), count));
+        }
     }
 
     private MessageBox findMessageBox(String msgBoxName, String msgBoxPass) {

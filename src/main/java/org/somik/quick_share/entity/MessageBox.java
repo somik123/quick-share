@@ -31,7 +31,7 @@ public class MessageBox {
     private boolean isLocked;
     private String password;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "messagebox_id", nullable = true)
     private List<Message> messageList;
 
