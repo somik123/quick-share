@@ -2,42 +2,59 @@
 <html xmlns:th="https://www.thymeleaf.org" lang="en" data-bs-theme="dark">
 
 <body>
-    <div th:if="${success}" class="alert alert-info" role="alert">
-        <span th:text="${success}"></span>
-    </div>
-    <div th:if="${error}" class="alert alert-warning" role="alert">
-        <span th:text="${error}"></span>
-    </div>
-    <div id="all_cards" th:if="${max >= 0}">
-        <div class="card mt-2" th:each="i : ${#numbers.sequence(0, max)}">
+    <div id="all_cards" th:if="${max >= 0}" class="mb-3">
+        <div class="card mb-2" th:each="i : ${#numbers.sequence(0, max)}">
             <div class="card-body px-3 py-2">
-                <div class="card-title fs-5 overflow-y-auto" style="max-height: 10rem;" th:id="'card_'+${i+1}"
-                    th:text="${messageList.get(i).message}"></div>
-                <div class="row">
-                    <div class="col-lg-3 col-md-12 mb-1">
-                        Alias:
-                        <span th:text="${messageList.get(i).creatorName}">test_user</span>
-                    </div>
-                    <div class="col-lg-3 col-md-12 mb-1">
-                        Posted:
-                        <span th:text="${#strings.replace(messageList.get(i).created, 'T',' ')}">Time</span>
-                    </div>
-                    <div class="col-lg-3 col-md-12 mb-1">
-                        Expiry:
-                        <span th:text="${#strings.replace(messageList.get(i).expiry, 'T',' ')}">N/A</span>
+                <div class="card-title " th:id="'card_header_'+${i+1}">
+                    <div class="row">
+                        <div class="col-auto flex flex-col pe-1">
+                            <img src="/assets/img/blank_avatar.png" th:data-hash="${messageList.get(i).creatorHash}"
+                                alt="avatar" th:id="'card_avatar_'+${i+1}">
+                        </div>
+                        <div class="col flex flex-col ps-1">
+                            <span class="fs-6 fw-bold" th:text="${messageList.get(i).creatorName}">user name</span>
+                            <div style="font-size: 0.72em;"> Posted:
+                                <span th:text="${#strings.replace(messageList.get(i).created, 'T',' ')}">Time</span> |
+                                Expiry:
+                                <span th:text="${#strings.replace(messageList.get(i).expiry, 'T',' ')}">N/A</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="position-absolute bottom-0 end-0 p-2">
-                    <input type="hidden" th:id="'raw_card_'+${i+1}" th:value="${messageList.get(i).message}">
-                    <a href="#" th:data-cardId="${i+1}"
-                        th:if="${#strings.substring(messageList.get(i).message, 0, 8)=='Encoded:'}"
-                        onclick="return decryptMessage(this.getAttribute('data-cardId'));">Decrypt</a>
-                    <a href="#" th:data-deleteCode="${messageList.get(i).deleteCode}"
-                        onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">Delete</a>
-                    <a href="#" th:data-cardId="${i+1}"
-                        onclick="return expandMessage(this.getAttribute('data-cardId'));">Expand</a>
+                <hr class="m-1">
+                <div class="overflow-y-auto" style="max-height: 10rem;" th:id="'card_'+${i+1}"
+                    th:text="${messageList.get(i).data}"></div>
+
+                <div class="position-absolute top-0 end-0 px-3 py-2">
+                    <input type="hidden" th:id="'raw_card_'+${i+1}" th:value="${messageList.get(i).data}">
+                    <div class="input-group">
+                        <button class="btn p-1" type="button" th:data-cardId="${i+1}"
+                            th:if="${#strings.length(messageList.get(i).data)>18 and #strings.substring(messageList.get(i).data, 0, 18)=='Encrypted message:'}"
+                            onclick="return decryptMessage(this.getAttribute('data-cardId'));">
+                            <img src="/assets/img/decrypt_grey.png" style="max-height: 1.2em;" />
+                        </button>
+
+                        <button class="btn p-1" type="button" style="display: none;" data-bs-toggle="modal"
+                            data-bs-target="#modalPopout" th:id="'card_expand_'+${i+1}" th:data-cardId="${i+1}"
+                            onclick="return expandMessage(this.getAttribute('data-cardId'));">
+                            <img src="/assets/img/expand_grey.png" style="max-height: 1.2em;" />
+                        </button>
+
+                        <button class="btn p-1" type="button" th:data-deleteCode="${messageList.get(i).deleteCode}"
+                            onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">
+                            <img src="/assets/img/delete_grey.png" style="max-height: 1.2em;" />
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="mb-2">
+        <div th:if="${success}" class="alert alert-info" role="alert">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-warning" role="alert">
+            <span th:text="${error}"></span>
         </div>
     </div>
 </body>

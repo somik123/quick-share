@@ -1,5 +1,6 @@
 var interval = null;
 var encryptedPasswords = new Map();
+var msgHtml = "";
 
 function createMessageBox() {
     var msgBox = document.getElementById("msgBoxNameTxt");
@@ -22,6 +23,7 @@ function createMessageBox() {
         divBox.innerHTML = http.responseText;
         divBox.classList.remove('closed');
         pageLoadActions();
+        window.history.replaceState({}, null, '/' + msgBoxName);
     }
     return false;
 }
@@ -45,9 +47,13 @@ function openMessageBox() {
     var params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
     http.send(JSON.stringify(params));
     http.onload = function () {
-        divBox.innerHTML = http.responseText;
-        divBox.classList.remove('closed');
-        pageLoadActions();
+        if (http.responseText != msgHtml) {
+            msgHtml = http.responseText;
+            divBox.innerHTML = http.responseText;
+            divBox.classList.remove('closed');
+            pageLoadActions();
+            window.history.replaceState({}, null, '/' + msgBoxName);
+        }
     }
     return false;
 }
@@ -112,13 +118,12 @@ function postMessage() {
 
 
 function expandMessage(id) {
-    var card_id = "card_" + id;
-    var el = document.getElementById(card_id);
-    if (el.style.maxHeight.length > 0)
-        el.style.maxHeight = "";
-    else
-        el.style.maxHeight = "10rem";
-
+    var card_header = document.getElementById("card_header_" + id);
+    var card_body = document.getElementById("card_" + id);
+    var modal_header = document.getElementById("modalPopoutHeader");
+    var modal_body = document.getElementById("modalPopoutBody");
+    modal_header.innerHTML = card_header.innerHTML;
+    modal_body.innerHTML = card_body.innerHTML;
 }
 
 
@@ -151,7 +156,7 @@ function deleteMessage(messageDeleteCode) {
 function lengthCounter() {
     var el = document.getElementById("count_message");
     var txtArea = document.getElementById("messageTxtArea");
-    el.innerHTML = txtArea.value.length + " / " + txtArea.maxLength;
+    el.innerHTML = parseInt(txtArea.value.length / 1000) + "k / " + parseInt(txtArea.maxLength / 1000) + "k";
 }
 
 
@@ -159,15 +164,15 @@ function linkify(inputText) {
     var replacedText, replacePattern1, replacePattern2, replacePattern3;
 
     //URLs starting with http://, https://, ftp:// or www
-    replacePattern1 = /((?<!\])\b(?:https?|ftp):\/\/[^\s\/$.?#].[^\s]*\b|\bwww\.[^\s\/$.?#].[^\s]*\b)/gi;
+    replacePattern1 = /((?<!\])\b(?:https?|ftp):\/\/[^\s\/$.?#].[^\s]*\/?|\bwww\.[^\s\/$.?#].[^\s]*\/?)/gi;
     replacedText = inputText.replaceAll(replacePattern1, '<a href="$1" target="_blank">$1</a>');
 
     //Change email addresses to mailto:: links.
     replacePattern2 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
     replacedText = replacedText.replaceAll(replacePattern2, '<a href="mailto:$1">$1</a>');
 
-    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]","[code]","[/code]"];
-    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />", "<pre><code>","</code></pre>"];
+    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]", "[code]", "[/code]"];
+    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />", "<pre><code>", "</code></pre>"];
     for (var i = 0; i < src_arr.length; i++) {
         replacedText = replacedText.replaceAll(src_arr[i], rep_arr[i]);
     }
@@ -186,6 +191,8 @@ function processCardContents() {
         else {
             el.innerHTML = linkify(el.innerHTML);
             decryptMessageProcess(id);
+            showExpandButton(id);
+            generateAvatar(id);
         }
     }
 }
@@ -268,7 +275,7 @@ function encryptText() {
     var hashedPwd = sha256(prompt("Enter encryption password:"));
     var encryptedTxt = encrypt(plainTxt, hashedPwd, true);
     var json = JSON.stringify(encryptedTxt);
-    el.value = "Encoded: \n" + btoa(json);
+    el.value = "Encrypted message: \n" + btoa(json);
     lengthCounter();
 }
 
@@ -296,7 +303,7 @@ function decryptMessageProcess(id) {
         var json = JSON.parse(atob(parts[1]));
 
         try {
-            var decoded = "Decoded message:\n" + decrypt(json["data"], hashedPwd, json["iv"]);
+            var decoded = "Decrypted message:\n" + decrypt(json["data"], hashedPwd, json["iv"]);
             el_dest.innerHTML = linkify(decoded);
         } catch (error) {
             console.error(error);
@@ -335,7 +342,6 @@ function uploadImage() {
     http.onload = function () {
         if (http.responseText.length > 0) {
             var api_reply = JSON.parse(http.responseText);
-            console.log(api_reply);
             if (api_reply['status'] == "OK") {
                 document.getElementById("result-error").style.display = "none";
                 el.value += "[img]" + api_reply['url'] + "[/img]\n";
@@ -398,7 +404,6 @@ function uploadFile() {
         if (http.responseText.length > 0) {
             percent.innerHTML = "&#x1F517;";
             var api_reply = JSON.parse(http.responseText);
-            console.log(api_reply);
             if (api_reply['status'] == "OK") {
                 document.getElementById("result-error").style.display = "none";
                 el.value += "Link: " + fileShare + api_reply['content']['url'] + "\n";
@@ -424,21 +429,39 @@ function pageLoadActions() {
     // Linkify all raw text
     processCardContents();
     // Length counter for text area
-    lengthCounter(); 
+    lengthCounter();
 
     // Reload every 5 seconds
     var cardDiv = document.getElementById("all_cards");
-    console.log(cardDiv);
     if (cardDiv != null) {
-        if (interval == null) {
-            interval = setInterval(function () {
-                openMessageBox();
-            }, 10 * 1000);
-        }
+        clearInterval(interval);
+        interval = setInterval(function () {
+            openMessageBox();
+        }, 10 * 1000);
+
     }
     else {
         clearInterval(interval);
         interval = null;
     }
+}
+
+function showExpandButton(id) {
+    let el = document.getElementById("card_" + id);
+    let expandButton = document.getElementById("card_expand_" + id);
+    if (el.scrollHeight > el.offsetHeight) {
+        expandButton.style.display = "";
+    }
+}
+
+function generateAvatar(id) {
+    var el = document.getElementById("card_avatar_" + id);
+    var hash = el.getAttribute('data-hash');
+    var options = {
+        size: 42,
+        format: 'svg'
+      };
+    var data = new Identicon(hash, options).toString();
+    el.src = "data:image/svg+xml;base64," + data
 }
 

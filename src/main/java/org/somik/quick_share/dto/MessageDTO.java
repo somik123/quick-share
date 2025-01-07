@@ -1,32 +1,40 @@
 package org.somik.quick_share.dto;
 
-import java.time.LocalDateTime;
-
 public class MessageDTO {
-    private String message;
+    private String creatorHash;
+    private String data;
     private String creatorName;
-    private LocalDateTime created;
-    private LocalDateTime expiry;
+    private String created;
+    private String expiry;
     private String deleteCode;
 
     public MessageDTO() {
     }
 
-    public MessageDTO(String message, String creatorName, LocalDateTime created, LocalDateTime expiry,
+    public MessageDTO(String data, String creatorName, String creatorHash, String created, String expiry,
             String deleteCode) {
-        this.message = message;
+        this.data = data;
         this.creatorName = creatorName;
+        this.creatorHash = creatorHash;
         this.created = created;
         this.expiry = expiry;
         this.deleteCode = deleteCode;
     }
 
-    public String getMessage() {
-        return this.message;
+    public String getCreatorHash() {
+        return this.creatorHash;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setCreatorHash(String creatorHash) {
+        this.creatorHash = creatorHash;
+    }
+
+    public String getData() {
+        return this.data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 
     public String getCreatorName() {
@@ -37,19 +45,19 @@ public class MessageDTO {
         this.creatorName = creatorName;
     }
 
-    public LocalDateTime getCreated() {
+    public String getCreated() {
         return this.created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(String created) {
         this.created = created;
     }
 
-    public LocalDateTime getExpiry() {
+    public String getExpiry() {
         return this.expiry;
     }
 
-    public void setExpiry(LocalDateTime expiry) {
+    public void setExpiry(String expiry) {
         this.expiry = expiry;
     }
 
@@ -63,8 +71,9 @@ public class MessageDTO {
 
     @Override
     public String toString() {
-        return String.format("{ message='%s', creatorName='%s', created='%s', expiry='%s', deleteCode='%s'}",
-                getMessage(), getCreatorName(), getCreated(), getExpiry(), getDeleteCode());
+        return String.format(
+                "{ creatorHash=%s, data='%s', creatorName='%s', created='%s', expiry='%s', deleteCode='%s'}",
+                getCreatorHash(), getData(), getCreatorName(), getCreated(), getExpiry(), getDeleteCode());
     }
 
 }

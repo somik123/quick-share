@@ -100,10 +100,12 @@ It is available on port `6988` once it is up.
 - [x] Add a footer.
 - [x] Add option to share message box without typing in the message box name.
 - [x] Add ability to open message in larger view.
-- [ ] Add code syntax highlighting.
+- [x] Add gravater for users.
+- [x] Make the UI look more like a forum.
+- [x] Change the date/times to be relative.
+- [ ] Add username and message box name filters to prevent misuse.
 - [ ] Add admin login to manage message boxes & messages.
 - [ ] Add flag to enable only admin to create message boxes.
 - [ ] Add user authentications.
-- [ ] Add filters to prevent misuse.
 - [ ] (more)
 - [ ] Test for vulnerabilities.

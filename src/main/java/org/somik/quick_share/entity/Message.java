@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.somik.quick_share.utils.CommonUtils;
+
 @Entity
 public class Message {
 
@@ -20,23 +22,26 @@ public class Message {
     private int id;
 
     @Nonnull
-    @Column(length = 5500)
-    private String message;
+    @Column(length = 55000)
+    private String data;
 
     private String creatorName;
     private String creatorIp;
+    private String creatorHash;
     private LocalDateTime created;
     private LocalDateTime expiry;
     private String deleteCode;
 
-
     public Message() {
     }
 
-    public Message(String message, String creatorName, String creatorIp, LocalDateTime expiry) {
-        this.message = message;
+    public Message(String data, String creatorName, String creatorIp, LocalDateTime expiry) {
+        this.data = data;
+
         this.creatorName = creatorName;
         this.creatorIp = creatorIp;
+        this.creatorHash = CommonUtils.generateIdenticonHash(creatorIp + creatorName);
+
         this.created = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         this.expiry = expiry;
         this.deleteCode = UUID.randomUUID().toString();
@@ -50,12 +55,12 @@ public class Message {
         this.id = id;
     }
 
-    public String getMessage() {
-        return this.message;
+    public String getData() {
+        return this.data;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public String getCreatorName() {
@@ -72,6 +77,14 @@ public class Message {
 
     public void setCreatorIp(String creatorIp) {
         this.creatorIp = creatorIp;
+    }
+
+    public String getCreatorHash() {
+        return this.creatorHash;
+    }
+
+    public void setCreatorHash(String creatorHash) {
+        this.creatorHash = creatorHash;
     }
 
     public LocalDateTime getCreated() {
@@ -106,18 +119,23 @@ public class Message {
             return false;
         }
         Message message = (Message) o;
-        return id == message.id && Objects.equals(deleteCode, message.deleteCode);
+        return id == message.id && Objects.equals(data, message.data)
+                && Objects.equals(creatorName, message.creatorName) && Objects.equals(creatorIp, message.creatorIp)
+                && Objects.equals(creatorHash, message.creatorHash) && Objects.equals(created, message.created)
+                && Objects.equals(expiry, message.expiry) && Objects.equals(deleteCode, message.deleteCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, message, creatorName, creatorIp, created, expiry, deleteCode);
+        return Objects.hash(id, data, creatorName, creatorIp, creatorHash, created, expiry, deleteCode);
     }
 
     @Override
     public String toString() {
-        return String.format("{ id='%d', message='%s', creatorName='%s', creatorIp='%s', created='%s', expiry='%s', deleteCode='%s'}", getId(), getMessage(), getCreatorName(), getCreatorIp(), getCreated(), getExpiry(), getDeleteCode());
+        return String.format(
+                "{ id='%d', message='%s', creatorName='%s', creatorIp='%s', creatorHash='%s', created='%s', expiry='%s', deleteCode='%s'}",
+                getId(), getData(), getCreatorName(), getCreatorIp(), getCreatorHash(), getCreated(), getExpiry(),
+                getDeleteCode());
     }
-    
 
 }

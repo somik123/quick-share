@@ -14,20 +14,21 @@ import org.somik.quick_share.repo.MessageBoxRepo;
 import org.somik.quick_share.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.HtmlUtils;
 
 @Service
 public class MessageBoxServiceImpl implements MessageBoxService {
     private static final Logger LOG = Logger.getLogger(MessageBoxService.class.getName());
+
+    private static final String[] bannedNames = { "admin", "owner", "support", "login", "site", "quickshare" };
 
     @Autowired
     MessageBoxRepo messageBoxRepo;
 
     @Override
     public ResponseDTO createMessageBox(String msgBoxName, String msgBoxPass, String creatorIp) {
-        if (msgBoxName == null || msgBoxName.length() < 3) {
+        if (msgBoxName == null || msgBoxName.length() < 3 || isNameBanned(msgBoxName)) {
             LOG.warning(String.format("Message box name [%s] not acceptable.", msgBoxName));
-            return new ResponseDTO("FAIL", null, "Message box name too small");
+            return new ResponseDTO("FAIL", null, "Message box name not acceptable.");
         }
 
         MessageBox checkMessageBox = findMessageBox(msgBoxName, msgBoxPass);
@@ -60,9 +61,9 @@ public class MessageBoxServiceImpl implements MessageBoxService {
     @Override
     public ResponseDTO addMessageToBox(String msgBoxName, String msgBoxPass, String username, String message,
             int expiry, String creatorIp) {
-        if (msgBoxName == null || msgBoxName.length() < 3) {
+        if (msgBoxName == null || msgBoxName.length() < 3 || isNameBanned(msgBoxName)) {
             LOG.warning(String.format("Message box name [%s] not acceptable.", msgBoxName));
-            return new ResponseDTO("FAIL", null, "Message box name too small");
+            return new ResponseDTO("FAIL", null, "Message box name not acceptable.");
         }
 
         MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass);
@@ -71,12 +72,12 @@ public class MessageBoxServiceImpl implements MessageBoxService {
             return new ResponseDTO("FAIL", null,
                     "Message box does not exist or incorrect password.");
         } else {
-            if (username == null || username.length() < 3) {
+            if (username == null || username.length() < 3 || isNameBanned(username)) {
                 LOG.warning(String.format("Username [%s] not acceptable.", username));
-                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Username too small");
-            } else if (message == null || message.length() < 5 || message.length() > 5000) {
+                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Username not acceptable.");
+            } else if (message == null || message.length() < 5 || message.length() > 50000) {
                 LOG.warning(String.format("Message [%s] not acceptable.", message));
-                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Message too small");
+                return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Message size not acceptable.");
             } else if (expiry <= 0 || expiry > 5259600) {
                 LOG.warning(String.format("Expiry of %d mins not acceptable.", expiry));
                 return new ResponseDTO("FAIL", convertMessageBoxToDto(messageBox), "Invalid expiry time.");
@@ -125,7 +126,7 @@ public class MessageBoxServiceImpl implements MessageBoxService {
 
             int count = 0;
             Iterator<Message> messageIterator = messageList.iterator();
-            while(messageIterator.hasNext()){
+            while (messageIterator.hasNext()) {
                 Message message = messageIterator.next();
                 if (now.isAfter(message.getExpiry())) {
                     messageIterator.remove();
@@ -163,5 +164,13 @@ public class MessageBoxServiceImpl implements MessageBoxService {
         messageBoxDTO.setName(messageBox.getName());
         messageBoxDTO.convertMessageListToDto(messageBox.getMessageList());
         return messageBoxDTO;
+    }
+
+    private boolean isNameBanned(String name) {
+        for (int i = 0; i < bannedNames.length; i++) {
+            if (name.toLowerCase().contains(bannedNames[i].toLowerCase()))
+                return true;
+        }
+        return false;
     }
 }
