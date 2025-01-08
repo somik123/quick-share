@@ -1,5 +1,6 @@
 package org.somik.quick_share.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.somik.quick_share.dto.MessageBoxDTO;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-
 @Controller
 public class HomeController {
     @Autowired
@@ -26,6 +26,8 @@ public class HomeController {
 
     @GetMapping("/")
     public String homePage(Model model) {
+        int year = LocalDateTime.now().getYear();
+        model.addAttribute("copyrightYear", year);
         model.addAttribute("fileshare_site_url", System.getenv("FILESHARE_SITE_FULL_URL"));
         model.addAttribute("imageshare_site_url", System.getenv("IMAGESHARE_SITE_FULL_URL"));
         return "home";

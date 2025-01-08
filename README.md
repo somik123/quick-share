@@ -103,7 +103,8 @@ It is available on port `6988` once it is up.
 - [x] Add gravater for users.
 - [x] Make the UI look more like a forum.
 - [x] Change the date/times to be relative.
-- [ ] Add username and message box name filters to prevent misuse.
+- [x] Add username and message box name filters to prevent misuse.
+- [x] Save the username in a cookie to remember it.
 - [ ] Add admin login to manage message boxes & messages.
 - [ ] Add flag to enable only admin to create message boxes.
 - [ ] Add user authentications.

@@ -3,48 +3,48 @@ var encryptedPasswords = new Map();
 var msgHtml = "";
 
 function createMessageBox() {
-    var msgBox = document.getElementById("msgBoxNameTxt");
-    var msgBoxName = msgBox.value.toLowerCase();
-    var msgBoxPass = document.getElementById("msgBoxPassTxt").value;
+    let msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBoxName = msgBox.value.toLowerCase();
+    let msgBoxPass = document.getElementById("msgBoxPassTxt").value;
 
     if (msgBoxName == "") {
         msgBoxName = "public";
     }
     msgBox.value = msgBoxName;
 
-    var divBox = document.getElementById('messageCards');
+    let divBox = document.getElementById('messageCards');
 
-    var http = new XMLHttpRequest();
+    let http = new XMLHttpRequest();
     http.open("POST", "/createMessageBox", true);
     http.setRequestHeader("Content-type", "application/json");
-    var params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
+    let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
     http.send(JSON.stringify(params));
     http.onload = function () {
         divBox.innerHTML = http.responseText;
         divBox.classList.remove('closed');
         pageLoadActions();
-        window.history.replaceState({}, null, '/' + msgBoxName);
+        updateUrlWithMsgBoxName(msgBoxName);
     }
     return false;
 }
 
 
 function openMessageBox() {
-    var msgBox = document.getElementById("msgBoxNameTxt");
-    var msgBoxName = msgBox.value.toLowerCase();
-    var msgBoxPass = document.getElementById("msgBoxPassTxt").value;
+    let msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBoxName = msgBox.value.toLowerCase();
+    let msgBoxPass = document.getElementById("msgBoxPassTxt").value;
 
     if (msgBoxName == "") {
         msgBoxName = "public";
     }
     msgBox.value = msgBoxName;
 
-    var divBox = document.getElementById('messageCards');
+    let divBox = document.getElementById('messageCards');
 
-    var http = new XMLHttpRequest();
+    let http = new XMLHttpRequest();
     http.open("POST", "/openMessageBox", true);
     http.setRequestHeader("Content-type", "application/json");
-    var params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
+    let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
     http.send(JSON.stringify(params));
     http.onload = function () {
         if (http.responseText != msgHtml) {
@@ -52,7 +52,7 @@ function openMessageBox() {
             divBox.innerHTML = http.responseText;
             divBox.classList.remove('closed');
             pageLoadActions();
-            window.history.replaceState({}, null, '/' + msgBoxName);
+            updateUrlWithMsgBoxName(msgBoxName)
         }
     }
     return false;
@@ -60,28 +60,28 @@ function openMessageBox() {
 
 
 function firstLoadOpenMessageBox() {
-    var msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBox = document.getElementById("msgBoxNameTxt");
     const urlParams = new URLSearchParams(window.location.search);
     const messageBoxName = urlParams.get("inbox");
     if (messageBoxName != null && messageBoxName != undefined && messageBoxName.length > 3) {
         msgBox.value = messageBoxName;
         openMessageBox();
-    } else if (msgBox.value.length > 3) {
+    } else if (msgBox.value.length >= 3) {
         openMessageBox();
     }
 }
 
 
 function postMessage() {
-    var msgBox = document.getElementById("msgBoxNameTxt");
-    var msgBoxName = msgBox.value.toLowerCase();
-    var msgBoxPass = document.getElementById("msgBoxPassTxt").value;
+    let msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBoxName = msgBox.value.toLowerCase();
+    let msgBoxPass = document.getElementById("msgBoxPassTxt").value;
 
-    var userBox = document.getElementById("usernameTxt");
-    var username = userBox.value;
-    var expiry = document.getElementById("messageExpirySel").value;
-    var messageTxtArea = document.getElementById("messageTxtArea");
-    var message = messageTxtArea.value;
+    let userBox = document.getElementById("usernameTxt");
+    let username = userBox.value;
+    let expiry = document.getElementById("messageExpirySel").value;
+    let messageTxtArea = document.getElementById("messageTxtArea");
+    let message = messageTxtArea.value;
 
     if (msgBoxName == "") {
         msgBoxName = "public";
@@ -93,12 +93,14 @@ function postMessage() {
         userBox.value = username;
     }
 
-    var divBox = document.getElementById('messageCards');
+    saveUsername(username);
 
-    var http = new XMLHttpRequest();
+    let divBox = document.getElementById('messageCards');
+
+    let http = new XMLHttpRequest();
     http.open("POST", "/postMessage", true);
     http.setRequestHeader("Content-type", "application/json");
-    var params = {
+    let params = {
         "msgBoxName": msgBoxName,
         "msgBoxPass": msgBoxPass,
         "username": username,
@@ -118,31 +120,31 @@ function postMessage() {
 
 
 function expandMessage(id) {
-    var card_header = document.getElementById("card_header_" + id);
-    var card_body = document.getElementById("card_" + id);
-    var modal_header = document.getElementById("modalPopoutHeader");
-    var modal_body = document.getElementById("modalPopoutBody");
+    let card_header = document.getElementById("card_header_" + id);
+    let card_body = document.getElementById("card_" + id);
+    let modal_header = document.getElementById("modalPopoutHeader");
+    let modal_body = document.getElementById("modalPopoutBody");
     modal_header.innerHTML = card_header.innerHTML;
     modal_body.innerHTML = card_body.innerHTML;
 }
 
 
 function deleteMessage(messageDeleteCode) {
-    var msgBox = document.getElementById("msgBoxNameTxt");
-    var msgBoxName = msgBox.value.toLowerCase();
-    var msgBoxPass = document.getElementById("msgBoxPassTxt").value;
+    let msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBoxName = msgBox.value.toLowerCase();
+    let msgBoxPass = document.getElementById("msgBoxPassTxt").value;
 
     if (msgBoxName == "") {
         msgBoxName = "public";
     }
     msgBox.value = msgBoxName;
 
-    var divBox = document.getElementById('messageCards');
+    let divBox = document.getElementById('messageCards');
 
-    var http = new XMLHttpRequest();
+    let http = new XMLHttpRequest();
     http.open("POST", "/deleteMessage", true);
     http.setRequestHeader("Content-type", "application/json");
-    var params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass, "messageDeleteCode": messageDeleteCode };
+    let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass, "messageDeleteCode": messageDeleteCode };
     http.send(JSON.stringify(params));
     http.onload = function () {
         divBox.innerHTML = http.responseText;
@@ -154,14 +156,14 @@ function deleteMessage(messageDeleteCode) {
 
 
 function lengthCounter() {
-    var el = document.getElementById("count_message");
-    var txtArea = document.getElementById("messageTxtArea");
+    let el = document.getElementById("count_message");
+    let txtArea = document.getElementById("messageTxtArea");
     el.innerHTML = parseInt(txtArea.value.length / 1000) + "k / " + parseInt(txtArea.maxLength / 1000) + "k";
 }
 
 
 function linkify(inputText) {
-    var replacedText, replacePattern1, replacePattern2, replacePattern3;
+    let replacedText, replacePattern1, replacePattern2, replacePattern3;
 
     //URLs starting with http://, https://, ftp:// or www
     replacePattern1 = /((?<!\])\b(?:https?|ftp):\/\/[^\s\/$.?#].[^\s]*\/?|\bwww\.[^\s\/$.?#].[^\s]*\/?)/gi;
@@ -171,9 +173,9 @@ function linkify(inputText) {
     replacePattern2 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
     replacedText = replacedText.replaceAll(replacePattern2, '<a href="mailto:$1">$1</a>');
 
-    var src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]", "[code]", "[/code]"];
-    var rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />", "<pre><code>", "</code></pre>"];
-    for (var i = 0; i < src_arr.length; i++) {
+    let src_arr = ["\n", "[b]", "[/b]", "[i]", "[/i]", "[img]", "[/img]", "[code]", "[/code]"];
+    let rep_arr = ["<br>", "<strong>", "</strong>", "<em>", "</em>", "<img src=\"", "\" alt=\"image\" />", "<pre><code>", "</code></pre>"];
+    for (let i = 0; i < src_arr.length; i++) {
         replacedText = replacedText.replaceAll(src_arr[i], rep_arr[i]);
     }
 
@@ -182,8 +184,8 @@ function linkify(inputText) {
 
 
 function processCardContents() {
-    var el;
-    for (var id = 1; id <= 100; id++) {
+    let el;
+    for (let id = 1; id <= 100; id++) {
         el = document.getElementById("card_" + id);
         if (el == null) {
             return;
@@ -199,7 +201,7 @@ function processCardContents() {
 
 
 function getInputSelection(el) {
-    var start = 0, end = 0, normalizedValue, range, textInputRange, len, endRange;
+    let start = 0, end = 0, normalizedValue, range, textInputRange, len, endRange;
 
     if (typeof el.selectionStart == "number" && typeof el.selectionEnd == "number") {
         start = el.selectionStart;
@@ -245,71 +247,27 @@ function getInputSelection(el) {
 
 
 function replaceSelectedText(el, tag0, tag1) {
-    var sel = getInputSelection(el)
-    var fullTxt = el.value;
+    let sel = getInputSelection(el)
+    let fullTxt = el.value;
     el.value = fullTxt.slice(0, sel.start) + tag0 + fullTxt.substring(sel.start, sel.end) + tag1 + fullTxt.slice(sel.end);
     lengthCounter();
 }
 
 
 function boldText() {
-    var el = document.getElementById("messageTxtArea");
+    let el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[b]", "[/b]");
 }
 
 
 function italicText() {
-    var el = document.getElementById("messageTxtArea");
+    let el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[i]", "[/i]");
 }
 
 function codeText() {
-    var el = document.getElementById("messageTxtArea");
+    let el = document.getElementById("messageTxtArea");
     replaceSelectedText(el, "[code]", "\n[/code]");
-}
-
-
-function encryptText() {
-    var el = document.getElementById("messageTxtArea");
-    var plainTxt = el.value;
-    var hashedPwd = sha256(prompt("Enter encryption password:"));
-    var encryptedTxt = encrypt(plainTxt, hashedPwd, true);
-    var json = JSON.stringify(encryptedTxt);
-    el.value = "Encrypted message: \n" + btoa(json);
-    lengthCounter();
-}
-
-
-function decryptMessage(id) {
-    var card_id = "card_" + id;
-    var hashedPwd = sha256(prompt("Enter encryption password:"));
-    encryptedPasswords.set(card_id, hashedPwd);
-    decryptMessageProcess(id);
-    return false;
-}
-
-
-function decryptMessageProcess(id) {
-    var card_id = "card_" + id;
-    var el_source = document.getElementById("raw_" + card_id);
-    var el_dest = document.getElementById(card_id);
-
-    if (encryptedPasswords.has(card_id)) {
-        var hashedPwd = encryptedPasswords.get(card_id);
-
-        if (hashedPwd.length <= 5)
-            return false;
-        var parts = el_source.value.split("\n");
-        var json = JSON.parse(atob(parts[1]));
-
-        try {
-            var decoded = "Decrypted message:\n" + decrypt(json["data"], hashedPwd, json["iv"]);
-            el_dest.innerHTML = linkify(decoded);
-        } catch (error) {
-            console.error(error);
-            encryptedPasswords.delete(card_id);
-        }
-    }
 }
 
 
@@ -319,14 +277,14 @@ function attachImage() {
 
 
 function uploadImage() {
-    var fileShare = document.getElementById("imageshare_site_url").value;
+    let fileShare = document.getElementById("imageshare_site_url").value;
     if (fileShare.length < 10 || fileShare.substring(0, 4) != "http") {
         alert("IMAGESHARE_SITE_FULL_URL not set.")
         return false;
     }
     fileShare = fileShare.substring(0, fileShare.length - 1);
 
-    var file = document.getElementById("attach_image");
+    let file = document.getElementById("attach_image");
 
     if (!file.files[0])
         return;
@@ -334,14 +292,14 @@ function uploadImage() {
     let form = document.getElementById("image_upload_form");
     let data = new FormData(form);
 
-    var el = document.getElementById("messageTxtArea");
+    let el = document.getElementById("messageTxtArea");
     let http = new XMLHttpRequest();
     http.open("POST", fileShare + "/index.php");
 
     http.send(data);
     http.onload = function () {
         if (http.responseText.length > 0) {
-            var api_reply = JSON.parse(http.responseText);
+            let api_reply = JSON.parse(http.responseText);
             if (api_reply['status'] == "OK") {
                 document.getElementById("result-error").style.display = "none";
                 el.value += "[img]" + api_reply['url'] + "[/img]\n";
@@ -368,14 +326,14 @@ function attachFile() {
 
 
 function uploadFile() {
-    var fileShare = document.getElementById("fileshare_site_url").value;
+    let fileShare = document.getElementById("fileshare_site_url").value;
     if (fileShare.length < 10 || fileShare.substring(0, 4) != "http") {
         alert("FILESHARE_SITE_FULL_URL not set.")
         return false;
     }
     fileShare = fileShare.substring(0, fileShare.length - 1);
 
-    var file = document.getElementById("attach_file");
+    let file = document.getElementById("attach_file");
 
     if (!file.files[0])
         return;
@@ -384,7 +342,7 @@ function uploadFile() {
     let data = new FormData(form);
 
     let percent = document.getElementById("upload_btn");
-    var el = document.getElementById("messageTxtArea");
+    let el = document.getElementById("messageTxtArea");
     let http = new XMLHttpRequest();
     http.open("POST", fileShare + "/file/upload");
 
@@ -403,7 +361,7 @@ function uploadFile() {
     http.onload = function () {
         if (http.responseText.length > 0) {
             percent.innerHTML = "&#x1F517;";
-            var api_reply = JSON.parse(http.responseText);
+            let api_reply = JSON.parse(http.responseText);
             if (api_reply['status'] == "OK") {
                 document.getElementById("result-error").style.display = "none";
                 el.value += "Link: " + fileShare + api_reply['content']['url'] + "\n";
@@ -432,7 +390,7 @@ function pageLoadActions() {
     lengthCounter();
 
     // Reload every 5 seconds
-    var cardDiv = document.getElementById("all_cards");
+    let cardDiv = document.getElementById("all_cards");
     if (cardDiv != null) {
         clearInterval(interval);
         interval = setInterval(function () {
@@ -446,6 +404,15 @@ function pageLoadActions() {
     }
 }
 
+
+function updateUrlWithMsgBoxName(msgBoxName) {
+    let pathname = new URL(location.href).pathname; // Extracts the path
+    let name = pathname.split('/').pop();
+    if (name != msgBoxName)
+        window.history.replaceState({}, "", '/' + msgBoxName);
+}
+
+
 function showExpandButton(id) {
     let el = document.getElementById("card_" + id);
     let expandButton = document.getElementById("card_expand_" + id);
@@ -454,14 +421,53 @@ function showExpandButton(id) {
     }
 }
 
+
 function generateAvatar(id) {
-    var el = document.getElementById("card_avatar_" + id);
-    var hash = el.getAttribute('data-hash');
-    var options = {
+    let el = document.getElementById("card_avatar_" + id);
+    let hash = el.getAttribute('data-hash');
+    let options = {
         size: 42,
         format: 'svg'
-      };
-    var data = new Identicon(hash, options).toString();
+    };
+    let data = new Identicon(hash, options).toString();
     el.src = "data:image/svg+xml;base64," + data
+}
+
+
+function saveUsername(username) {
+    setCookie("username", username, 30);
+}
+
+
+function getUsername() {
+    let el = document.getElementById("usernameTxt");
+    let username = getCookie("username");
+    // validation happens in getCookie method
+    el.value = username;
+}
+
+
+function setCookie(key, value, expiryDays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (expiryDays * 24 * 60 * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = key + "=" + value + ";" + expires + ";path=/";
+}
+
+
+function getCookie(key) {
+    let name = key + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
 
