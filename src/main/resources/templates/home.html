@@ -118,10 +118,10 @@
                         <select class="form-select" id="messageExpirySel">
                             <option value="5">5 mins</option>
                             <option value="60">1 hour</option>
-                            <option selected value="1440">1 Day</option>
+                            <option value="1440">1 Day</option>
                             <option value="1440">2 Days</option>
                             <option value="10080">1 Week</option>
-                            <option value="43200">1 Month</option>
+                            <option selected value="43200">1 Month</option>
                             <option value="129600">3 Months</option>
                             <option value="525960">1 Year</option>
                             <option value="5259600">10 Years</option>
@@ -140,7 +140,7 @@
                         <form action="#" id="file_upload_form" method="post" enctype="multipart/form-data">
                             <input class="form-control" type="file" id="attach_file" name="file" style="display: none;"
                                 onchange="uploadFile()">
-                            <input class="form-control" type="hidden" id="file_expiry" name="expiry_hour" value="168">
+                            <input class="form-control" type="hidden" id="file_expiry" name="file_expiry" value="43200">
                         </form>
 
                         <input type="hidden" id="imageshare_site_url" th:value="${imageshare_site_url}">
