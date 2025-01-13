@@ -12,16 +12,13 @@ function createMessageBox() {
     }
     msgBox.value = msgBoxName;
 
-    let divBox = document.getElementById('messageCards');
-
     let http = new XMLHttpRequest();
     http.open("POST", "/createMessageBox", true);
     http.setRequestHeader("Content-type", "application/json");
     let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
     http.send(JSON.stringify(params));
     http.onload = function () {
-        divBox.innerHTML = http.responseText;
-        divBox.classList.remove('closed');
+        showCards(http.responseText);
         pageLoadActions();
         updateUrlWithMsgBoxName(msgBoxName);
     }
@@ -39,8 +36,6 @@ function openMessageBox() {
     }
     msgBox.value = msgBoxName;
 
-    let divBox = document.getElementById('messageCards');
-
     let http = new XMLHttpRequest();
     http.open("POST", "/openMessageBox", true);
     http.setRequestHeader("Content-type", "application/json");
@@ -49,8 +44,7 @@ function openMessageBox() {
     http.onload = function () {
         if (http.responseText != msgHtml) {
             msgHtml = http.responseText;
-            divBox.innerHTML = http.responseText;
-            divBox.classList.remove('closed');
+            showCards(http.responseText);
             pageLoadActions();
             updateUrlWithMsgBoxName(msgBoxName)
         }
@@ -95,8 +89,6 @@ function postMessage() {
 
     saveUsername(username);
 
-    let divBox = document.getElementById('messageCards');
-
     let http = new XMLHttpRequest();
     http.open("POST", "/postMessage", true);
     http.setRequestHeader("Content-type", "application/json");
@@ -110,8 +102,7 @@ function postMessage() {
 
     http.send(JSON.stringify(params));
     http.onload = function () {
-        divBox.innerHTML = http.responseText;
-        divBox.classList.remove('closed');
+        showCards(http.responseText);
         messageTxtArea.value = "";
         pageLoadActions();
     }
@@ -129,6 +120,14 @@ function expandMessage(id) {
 }
 
 
+function copyMessage(id) {
+    let messageTxtArea = document.getElementById("messageTxtArea");
+    let card_text = document.getElementById("raw_card_" + id).value;
+    messageTxtArea.value = card_text;
+
+}
+
+
 function deleteMessage(messageDeleteCode) {
     let msgBox = document.getElementById("msgBoxNameTxt");
     let msgBoxName = msgBox.value.toLowerCase();
@@ -139,16 +138,13 @@ function deleteMessage(messageDeleteCode) {
     }
     msgBox.value = msgBoxName;
 
-    let divBox = document.getElementById('messageCards');
-
     let http = new XMLHttpRequest();
     http.open("POST", "/deleteMessage", true);
     http.setRequestHeader("Content-type", "application/json");
     let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass, "messageDeleteCode": messageDeleteCode };
     http.send(JSON.stringify(params));
     http.onload = function () {
-        divBox.innerHTML = http.responseText;
-        divBox.classList.remove('closed');
+        showCards(http.responseText);
         pageLoadActions();
     }
     return false;
@@ -282,7 +278,9 @@ function uploadImage() {
         alert("IMAGESHARE_SITE_FULL_URL not set.")
         return false;
     }
-    fileShare = fileShare.substring(0, fileShare.length - 1);
+    // Remove trailing slash
+    if (fileShare[fileShare.length - 1] == "/")
+        fileShare = fileShare.substring(0, fileShare.length - 1);
 
     let file = document.getElementById("attach_image");
 
@@ -308,7 +306,7 @@ function uploadImage() {
             else if (api_reply['status'] == "FAIL") {
                 document.getElementById("result-error").innerHTML = '<div class="alert alert-danger" role="alert"><strong>ERROR:</strong> ' + api_reply['msg'] + '</div>';
                 document.getElementById("result-error").style.display = "";
-                document.getElementById('slider').classList.remove('closed');
+                document.getElementById('slider').classList.remove('collapse');
             }
             else
                 alert("Image upload failed as server returned error.");
@@ -327,14 +325,21 @@ function attachFile() {
 
 function uploadFile() {
     let fileShare = document.getElementById("fileshare_site_url").value;
+    let expiry = document.getElementById("messageExpirySel").value;
+
     if (fileShare.length < 10 || fileShare.substring(0, 4) != "http") {
         alert("FILESHARE_SITE_FULL_URL not set.")
         return false;
     }
-    fileShare = fileShare.substring(0, fileShare.length - 1);
+    // Remove trailing slash
+    if (fileShare[fileShare.length - 1] == "/")
+        fileShare = fileShare.substring(0, fileShare.length - 1);
+
+    // Set the expiry date in file upload form
+    let fileExpiry = document.getElementById("file_expiry");
+    fileExpiry.value = expiry;
 
     let file = document.getElementById("attach_file");
-
     if (!file.files[0])
         return;
 
@@ -371,7 +376,7 @@ function uploadFile() {
             else if (api_reply['status'] == "FAIL") {
                 document.getElementById("result-error").innerHTML = '<div class="alert alert-danger" role="alert"><strong>ERROR:</strong> ' + api_reply['error'] + '</div>';
                 document.getElementById("result-error").style.display = "";
-                document.getElementById('slider').classList.remove('closed');
+                document.getElementById('slider').classList.remove('collapse');
             }
             else
                 alert("File upload failed as server returned error.");
@@ -451,7 +456,7 @@ function setCookie(key, value, expiryDays) {
     const d = new Date();
     d.setTime(d.getTime() + (expiryDays * 24 * 60 * 60 * 1000));
     let expires = "expires=" + d.toUTCString();
-    document.cookie = key + "=" + value + ";" + expires + ";path=/";
+    document.cookie = key + "=" + value + ";" + expires + ";path=/;SameSite=Strict";
 }
 
 
@@ -471,3 +476,12 @@ function getCookie(key) {
     return "";
 }
 
+
+function showCards(data) {
+    let inputCard = document.getElementById("inputCard");
+    inputCard.classList.remove('collapse');
+
+    let divBox = document.getElementById('messageCards');
+    divBox.innerHTML = data;
+    divBox.classList.remove('collapse');
+}

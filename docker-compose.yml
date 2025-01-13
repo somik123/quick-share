@@ -15,6 +15,9 @@ services:
       QUICKSHARE_DB_PASS: ej6L9nV5vBBLP7iQUi4Zhd32iaEH4yYa
       FILESHARE_SITE_FULL_URL: http://file-host.example.com/
       IMAGESHARE_SITE_FULL_URL: http://image-host.example.com/
+      QUICKSHARE_USER: admin
+      QUICKSHARE_PASS: myfqszKS4iKJPRqUN9tQ
+      QUICKSHARE_PASS_HIDE: no
       TZ: Asia/Singapore
     ports:
       - 6980:8080

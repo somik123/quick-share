@@ -2,6 +2,7 @@ package org.somik.quick_share.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -13,6 +14,7 @@ import org.somik.quick_share.entity.MessageBox;
 import org.somik.quick_share.repo.MessageBoxRepo;
 import org.somik.quick_share.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,8 +47,15 @@ public class MessageBoxServiceImpl implements MessageBoxService {
     }
 
     @Override
-    public ResponseDTO openMessageBox(String msgBoxName, String msgBoxPass) {
-        MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass);
+    public ResponseDTO openMessageBox(String msgBoxName, String msgBoxPass, User user) {
+        boolean isAdmin = false;
+        String quickshareUser = System.getenv("QUICKSHARE_USER");
+        if (user != null && user.getUsername().length() > 0 && user.getUsername().equals(quickshareUser)) {
+            isAdmin = true;
+        }
+        
+        MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass, isAdmin);
+
         if (messageBox == null) {
             LOG.info(String.format("Message box not found or %s password did not match", msgBoxName));
             return new ResponseDTO("FAIL", null, "Message box does not exist or incorrect password.");
@@ -112,6 +121,23 @@ public class MessageBoxServiceImpl implements MessageBoxService {
     }
 
     @Override
+    public List<MessageBoxDTO> getAllMessageBoxes() {
+        List<MessageBox> messageBoxList = messageBoxRepo.findAllMessageBoxes();
+        if (messageBoxList == null || messageBoxList.size() == 0) {
+            LOG.info("No message boxes found.");
+            return null;
+        }
+        LOG.info(String.format("Found %d message boxes.", messageBoxList.size()));
+        List<MessageBoxDTO> messageBoxDTOList = new ArrayList<>();
+        for (MessageBox messageBox : messageBoxList) {
+            MessageBoxDTO messageBoxDTO = new MessageBoxDTO();
+            messageBoxDTO.setName(messageBox.getName());
+            messageBoxDTOList.add(messageBoxDTO);
+        }
+        return messageBoxDTOList;
+    }
+
+    @Override
     public void deleteExpiredMessages() {
         LocalDateTime now = LocalDateTime.now();
         List<MessageBox> mesageBoxList = messageBoxRepo.findAllMessageBoxes();
@@ -139,19 +165,31 @@ public class MessageBoxServiceImpl implements MessageBoxService {
     }
 
     private MessageBox findMessageBox(String msgBoxName, String msgBoxPass) {
+        return findMessageBox(msgBoxName, msgBoxPass, false);
+    }
+
+    private MessageBox findMessageBox(String msgBoxName, String msgBoxPass, boolean isAdmin) {
         List<MessageBox> messageBoxList = messageBoxRepo.findByName(msgBoxName);
         if (messageBoxList != null && messageBoxList.size() > 0) {
-            for (MessageBox messageBox : messageBoxList) {
-                if (messageBox.getIsLocked()) {
-                    if (CommonUtils.isPasswordCorrect(messageBox.getPassword(), msgBoxPass)) {
-                        LOG.info(String.format("Locked message box %s found.", msgBoxName));
-                        return messageBox;
-                    }
-                } else {
-                    LOG.info(String.format("Unlocked message box %s found.", msgBoxName));
+
+            // Only open the first message box found
+            MessageBox messageBox = messageBoxList.get(0);
+            if (messageBox.getIsLocked()) {
+                if (isAdmin) {
+                    LOG.info(String.format("[Admin] Locked message box %s found.", msgBoxName));
                     return messageBox;
+                } else if (CommonUtils.isPasswordCorrect(messageBox.getPassword(), msgBoxPass)) {
+                    LOG.info(String.format("Locked message box %s found.", msgBoxName));
+                    return messageBox;
+                } else {
+                    LOG.info(String.format("Message box %s found but password did not match.", msgBoxName));
+                    return null;
                 }
+            } else {
+                LOG.info(String.format("Unlocked message box %s found.", msgBoxName));
+                return messageBox;
             }
+
         }
         LOG.info(String.format("Message box %s not found.", msgBoxName));
         return null;

@@ -40,6 +40,11 @@
                             <img src="/assets/img/expand_grey.png" style="max-height: 1.2em;" />
                         </button>
 
+                        <button class="btn p-1" type="button" th:data-cardId="${i+1}"
+                            onclick="return copyMessage(this.getAttribute('data-cardId'));">
+                            <img src="/assets/img/copy_grey.png" style="max-height: 1.2em;" />
+                        </button>
+
                         <button class="btn p-1" type="button" th:data-deleteCode="${messageList.get(i).deleteCode}"
                             onclick="return deleteMessage(this.getAttribute('data-deleteCode'));">
                             <img src="/assets/img/delete_grey.png" style="max-height: 1.2em;" />

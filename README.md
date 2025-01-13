@@ -19,6 +19,9 @@ Edit the file with your favorit editor to set all the environment variables in t
 | `QUICKSHARE_DB_PASS` | Database password |
 | `FILESHARE_SITE_FULL_URL` | Homepage for https://github.com/somik123/link-shortener-file-share |
 | `IMAGESHARE_SITE_FULL_URL` | Homepage url for https://github.com/somik123/mini-image-host |
+| `QUICKSHARE_USER` | Admin username to manage all message boxes and messages |
+| `QUICKSHARE_PASS` | Admin password |
+| `QUICKSHARE_PASS_HIDE` | Set this to "yes" to disable printing the password to logs when starting up the app |
 
 Once done, save the file and run the following command from the same folder as your `docker-compose.yml` file.
 ```
@@ -105,8 +108,8 @@ It is available on port `6988` once it is up.
 - [x] Change the date/times to be relative.
 - [x] Add username and message box name filters to prevent misuse.
 - [x] Save the username in a cookie to remember it.
-- [ ] Add admin login to manage message boxes & messages.
+- [x] Add copy message button.
+- [x] Add admin login.
+- [x] Allow admin to manage all message boxes & messages.
 - [ ] Add flag to enable only admin to create message boxes.
-- [ ] Add user authentications.
-- [ ] (more)
 - [ ] Test for vulnerabilities.
