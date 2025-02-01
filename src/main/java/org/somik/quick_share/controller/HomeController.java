@@ -101,6 +101,11 @@ public class HomeController {
         return homePage(model, user);
     }
 
+    @GetMapping("/favicon.ico")
+    public String favicon() {
+        return "forward:/assets/favicon/favicon.ico";
+    }
+
     private Model addMessageToModel(Model model, ResponseDTO response) {
         MessageBoxDTO messageBoxDTO = (MessageBoxDTO) response.getContent();
         if (messageBoxDTO != null) {
