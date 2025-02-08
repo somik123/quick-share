@@ -347,6 +347,7 @@ function uploadFile() {
     let data = new FormData(form);
 
     let percent = document.getElementById("upload_btn");
+    let originalHtml = percent.innerHTML;
     let el = document.getElementById("messageTxtArea");
     let http = new XMLHttpRequest();
     http.open("POST", fileShare + "/file/upload");
@@ -365,7 +366,7 @@ function uploadFile() {
     http.send(data);
     http.onload = function () {
         if (http.responseText.length > 0) {
-            percent.innerHTML = "&#x1F517;";
+            percent.innerHTML = originalHtml;
             let api_reply = JSON.parse(http.responseText);
             if (api_reply['status'] == "OK") {
                 document.getElementById("result-error").style.display = "none";
