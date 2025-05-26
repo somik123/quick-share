@@ -10,6 +10,7 @@ import org.somik.quick_share.dto.ResponseDTO;
 import org.somik.quick_share.service.MessageBoxService;
 import org.somik.quick_share.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.view.RedirectView;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
@@ -86,6 +88,23 @@ public class HomeController {
         ResponseDTO response = messageBoxService.deleteMessageFromBox(requestDTO.getMsgBoxName().toLowerCase(),
                 requestDTO.getMsgBoxPass(), requestDTO.getMessageDeleteCode());
         model = addMessageToModel(model, response);
+        return "messages";
+    }
+
+    @PostMapping(path = "/deleteMessageBox")
+    public String deleteMessageBox(@RequestBody RequestDTO requestDTO, Model model,
+            @AuthenticationPrincipal User user) {
+        if (user != null) {
+            ResponseDTO response = messageBoxService.deleteMessageBox(requestDTO.getMsgBoxName().toLowerCase(),
+                    requestDTO.getMsgBoxPass());
+            if (response.getStatus() == "OK") {
+                model.addAttribute("success", "Message box deleted successfully.");
+            } else {
+                model.addAttribute("error", response.getError());
+            }
+        } else {
+            model.addAttribute("error", "You must be logged in as an administrator to delete a message box.");
+        }
         return "messages";
     }
 

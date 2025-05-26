@@ -16,6 +16,8 @@ public interface MessageBoxService {
 
     ResponseDTO deleteMessageFromBox(String msgBoxName, String msgBoxPass, String messageDeleteCode);
 
+    ResponseDTO deleteMessageBox(String msgBoxName, String msgBoxPass);
+
     List<MessageBoxDTO> getAllMessageBoxes();
 
     void deleteExpiredMessages();

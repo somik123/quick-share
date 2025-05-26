@@ -53,6 +53,30 @@ function openMessageBox() {
 }
 
 
+function deleteMessageBox() {
+    let msgBox = document.getElementById("msgBoxNameTxt");
+    let msgBoxName = msgBox.value.toLowerCase();
+    let msgBoxPass = document.getElementById("msgBoxPassTxt").value;
+
+    if (msgBoxName == "") {
+        msgBoxName = "public";
+    }
+    msgBox.value = msgBoxName;
+
+    let http = new XMLHttpRequest();
+    http.open("POST", "/deleteMessageBox", true);
+    http.setRequestHeader("Content-type", "application/json");
+    let params = { "msgBoxName": msgBoxName, "msgBoxPass": msgBoxPass };
+    http.send(JSON.stringify(params));
+    http.onload = function () {
+        showCards(http.responseText);
+        pageLoadActions();
+        updateUrlWithMsgBoxName(msgBoxName)
+    }
+    return false;
+}
+
+
 function firstLoadOpenMessageBox() {
     let msgBox = document.getElementById("msgBoxNameTxt");
     const urlParams = new URLSearchParams(window.location.search);

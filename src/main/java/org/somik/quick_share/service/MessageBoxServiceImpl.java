@@ -53,7 +53,7 @@ public class MessageBoxServiceImpl implements MessageBoxService {
         if (user != null && user.getUsername().length() > 0 && user.getUsername().equals(quickshareUser)) {
             isAdmin = true;
         }
-        
+
         MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass, isAdmin);
 
         if (messageBox == null) {
@@ -118,6 +118,20 @@ public class MessageBoxServiceImpl implements MessageBoxService {
             }
         }
         return new ResponseDTO("FAIL", null, "Message does not exist or incorrect delete code.");
+    }
+
+    @Override
+    public ResponseDTO deleteMessageBox(String msgBoxName, String msgBoxPass) {
+        MessageBox messageBox = findMessageBox(msgBoxName, msgBoxPass);
+        if (messageBox == null) {
+            LOG.info(String.format("Message box not found or %s password did not match", msgBoxName));
+            return new ResponseDTO("FAIL", null, "Message box does not exist or incorrect password.");
+        }
+        LOG.info(String.format("Deleting message box [%s] with %d messages.",
+                messageBox.getName(), messageBox.getMessageList().size()));
+        messageBoxRepo.delete(messageBox);
+
+        return new ResponseDTO("OK", convertMessageBoxToDto(messageBox), "Message box deleted successfully.");
     }
 
     @Override
@@ -211,4 +225,5 @@ public class MessageBoxServiceImpl implements MessageBoxService {
         }
         return false;
     }
+
 }
