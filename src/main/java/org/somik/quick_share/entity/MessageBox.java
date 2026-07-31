@@ -2,8 +2,11 @@ package org.somik.quick_share.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import io.micrometer.common.lang.NonNull;
+import org.somik.quick_share.utils.CommonUtils;
+
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,9 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import java.util.Objects;
-
-import org.somik.quick_share.utils.CommonUtils;
 
 @Entity
 public class MessageBox {
@@ -22,10 +22,10 @@ public class MessageBox {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @NonNull
+    @Nonnull
     private String name;
 
-    @NonNull
+    @Nonnull
     private String creatorIp;
 
     private boolean isLocked;

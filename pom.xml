@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>4.1.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.somik</groupId>
 	<artifactId>quick-share</artifactId>
-	<version>0.6</version>
+	<version>0.7</version>
 	<name>quick-share</name>
 	<description>A online chat like interface for quickly sharing text/links/files with other devices</description>
 	<properties>

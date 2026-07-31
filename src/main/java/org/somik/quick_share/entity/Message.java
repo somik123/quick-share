@@ -2,6 +2,10 @@ package org.somik.quick_share.entity;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.somik.quick_share.utils.CommonUtils;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
@@ -9,10 +13,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.Objects;
-import java.util.UUID;
-
-import org.somik.quick_share.utils.CommonUtils;
 
 @Entity
 public class Message {

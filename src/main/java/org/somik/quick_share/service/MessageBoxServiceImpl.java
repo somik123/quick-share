@@ -13,7 +13,6 @@ import org.somik.quick_share.entity.Message;
 import org.somik.quick_share.entity.MessageBox;
 import org.somik.quick_share.repo.MessageBoxRepo;
 import org.somik.quick_share.utils.CommonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +22,10 @@ public class MessageBoxServiceImpl implements MessageBoxService {
 
     private static final String[] bannedNames = { "admin", "owner", "support", "login", "site", "quickshare" };
 
-    @Autowired
-    MessageBoxRepo messageBoxRepo;
+    private final MessageBoxRepo messageBoxRepo;
+    public MessageBoxServiceImpl(MessageBoxRepo messageBoxRepo) {
+        this.messageBoxRepo = messageBoxRepo;
+    }
 
     @Override
     public ResponseDTO createMessageBox(String msgBoxName, String msgBoxPass, String creatorIp) {

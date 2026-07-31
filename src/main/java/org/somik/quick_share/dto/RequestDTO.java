@@ -12,6 +12,17 @@ public class RequestDTO {
     public RequestDTO() {
     }
 
+    // For creating/opening/deleting a message box
+    public RequestDTO(String msgBoxName, String msgBoxPass) {
+        this(msgBoxName, msgBoxPass, "", "", -1, "");
+    }
+
+    // For deleting a message box
+    public RequestDTO(String msgBoxName, String msgBoxPass, String messageDeleteCode) {
+        this(msgBoxName, msgBoxPass, "", "", -1, messageDeleteCode);
+    }
+
+    // For adding a message to a message box
     public RequestDTO(String msgBoxName, String msgBoxPass, String username, String message, int expiry,
             String messageDeleteCode) {
         this.msgBoxName = msgBoxName;

@@ -9,8 +9,6 @@ import org.somik.quick_share.dto.RequestDTO;
 import org.somik.quick_share.dto.ResponseDTO;
 import org.somik.quick_share.service.MessageBoxService;
 import org.somik.quick_share.utils.CommonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -22,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.view.RedirectView;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
-    @Autowired
-    MessageBoxService messageBoxService;
+    final MessageBoxService messageBoxService;
+
+    HomeController(MessageBoxService messageBoxService) {
+        this.messageBoxService = messageBoxService;
+    }
 
     @GetMapping("/")
     public String homePage(Model model, @AuthenticationPrincipal User user) {
